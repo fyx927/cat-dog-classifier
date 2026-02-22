@@ -9,7 +9,7 @@ import random
 # 设备
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-# 重新构建模型（结构必须与训练时一致）
+# 重新构建模型
 model = models.resnet18(pretrained=False)
 num_ftrs = model.fc.in_features
 model.fc = nn.Linear(num_ftrs, 2)  # 2分类
@@ -17,7 +17,7 @@ model.load_state_dict(torch.load('cat_dog_resnet18.pth', map_location=device))
 model = model.to(device)
 model.eval()
 
-# 图像预处理（与验证时一致）
+# 图像预处理
 transform = transforms.Compose([
     transforms.Resize(256),
     transforms.CenterCrop(224),
@@ -26,9 +26,8 @@ transform = transforms.Compose([
                          std=[0.229, 0.224, 0.225])
 ])
 
-
+# 输入图片路径，返回预测类别
 def predict_image(image_path):
-    """输入图片路径，返回预测类别（猫或狗）"""
     image = Image.open(image_path).convert('RGB')
     image_tensor = transform(image).unsqueeze(0).to(device)
     with torch.no_grad():
@@ -41,7 +40,7 @@ def predict_image(image_path):
 cat_images = [os.path.join('train/cats', f) for f in os.listdir('train/cats') if f.endswith('.jpg')]
 dog_images = [os.path.join('train/dogs', f) for f in os.listdir('train/dogs') if f.endswith('.jpg')]
 
-# 随机选各2张（如果图片数不足则选全部）
+# 随机选各2张
 num_samples = min(2, len(cat_images), len(dog_images))
 test_images = random.sample(cat_images, num_samples) + random.sample(dog_images, num_samples)
 true_labels = ['cat'] * num_samples + ['dog'] * num_samples
