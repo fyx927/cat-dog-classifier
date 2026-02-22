@@ -10,18 +10,18 @@ from data_loader import get_data_loaders  # 导入我们自己写的数据加载
 
 
 if __name__ == '__main__':
-    # -------------------- 1. 加载数据 --------------------
+    # 加载数据
     train_loader, val_loader, class_names = get_data_loaders(data_dir='train', batch_size=32)
     dataloaders = {'train': train_loader, 'val': val_loader}
 
-    # -------------------- 2. 设备配置 --------------------
+    # 设备配置
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(f"使用设备: {device}")
 
-    # -------------------- 3. 模型定义 --------------------
+    # 模型定义
     model = models.resnet18(pretrained=True)
 
-    # 冻结所有层（可选，可以加快训练，防止过拟合）
+    # 冻结所有层
     for param in model.parameters():
         param.requires_grad = False
 
@@ -30,11 +30,11 @@ if __name__ == '__main__':
     model.fc = nn.Linear(num_ftrs, len(class_names))  # class_names = ['cats','dogs']
     model = model.to(device)
 
-    # 损失函数和优化器（只优化新添加的层）
+    # 损失函数和优化器
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.fc.parameters(), lr=0.001)
 
-    # -------------------- 4. 训练函数 --------------------
+    # 训练函数
     def train_model(model, dataloaders, criterion, optimizer, num_epochs=5):
         since = time.time()
         train_loss_history = []
@@ -96,14 +96,14 @@ if __name__ == '__main__':
         model.load_state_dict(best_model_wts)
         return model, train_loss_history, val_acc_history
 
-    # -------------------- 5. 执行训练 --------------------
+    # 执行训练
     model, train_loss, val_acc = train_model(model, dataloaders, criterion, optimizer, num_epochs=5)
 
-    # -------------------- 6. 保存模型 --------------------
+    # 保存模型
     torch.save(model.state_dict(), 'cat_dog_resnet18.pth')
     print("模型已保存为 cat_dog_resnet18.pth")
 
-    # -------------------- 7. 绘制训练曲线 --------------------
+    # 绘制训练曲线
     plt.figure(figsize=(12,4))
     plt.subplot(1,2,1)
     plt.plot(train_loss, 'b-o', label='Train Loss')
