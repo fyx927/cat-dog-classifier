@@ -25,10 +25,7 @@ def get_transform(phase='train'):
 
 
 def get_data_loaders(data_dir='train', batch_size=32, val_split=0.2, num_workers=2):
-    """
-    返回 train_loader, val_loader 以及数据集大小信息
-    """
-    
+    # 返回 train_loader, val_loader 以及数据集大小信息
     full_dataset = datasets.ImageFolder(root=data_dir, transform=get_transform('train'))
 
     # 划分训练集和验证集
